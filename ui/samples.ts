@@ -7,7 +7,9 @@ import random
 
 G = await geocode_graph("香川県,高松市,林町")
 GOAL = await geocode_node(G, "香川大学,林町")
-SPEED = 40 * 1000 / 3600 # 40 km/h
+SPEED = 1.0
+N = 1000
+TL = 6000
 
 class Escaper(Agent):
     route = []
@@ -32,10 +34,10 @@ simulate(
   agents=[
       Escaper(node=node) 
       for node 
-      in random.sample(list(G.nodes), 10)
+      in random.choices(list(G.nodes), k=N)
   ],
   G=G,
-  timelimit=100,
+  timelimit=TL,
 )
 `,
   `# wealth transfer
@@ -73,6 +75,140 @@ d = json.loads(s)
 
 wealth_dist = sorted([ a['timelines'][-1]['wealth'] for a in d['agents']], reverse=True)
 print(wealth_dist)
+`,
+  `# test G force
+import networkx as nx
+import random
+import time
+
+start = time.time()
+G = await geocode_graph("香川県,高松市,林町", force=True)
+end = time.time()
+print(end - start)
+
+start = time.time()
+GOAL = await geocode_node(G, "香川大学,林町", force=True)
+end = time.time()
+print(end - start)
+`,
+  `# test G
+import networkx as nx
+import random
+import time
+
+start = time.time()
+G = await geocode_graph("香川県,高松市,林町")
+end = time.time()
+print(end - start)
+
+start = time.time()
+GOAL = await geocode_node(G, "香川大学,林町")
+end = time.time()
+print(end - start)
+`,
+  `# test G pref
+import networkx as nx
+import random
+import time
+
+start = time.time()
+G = await geocode_graph("香川県", force=True)
+end = time.time()
+print(end - start)
+
+start = time.time()
+GOAL = await geocode_node(G, "香川大学,林町", force=True)
+end = time.time()
+print(end - start)
+`,
+  `# test
+import networkx as nx
+import random
+import time
+
+G = await geocode_graph("香川県,高松市,林町")
+GOAL = await geocode_node(G, "香川大学,林町")
+SPEED = 1.0
+N = 100
+TL = 6000
+
+class Escaper(Agent):
+    route = []
+
+    def on_moved(self):
+        if not self.route:
+            return
+        next_node = self.route.pop(0)
+        self.move(next_node, SPEED)
+
+    def on_started(self):
+        # 最短経路
+        try:
+            self.route = nx.shortest_path(G, self.node, GOAL)
+        except:
+            return
+        self.route.pop(0)
+        self.on_moved()
+
+random.seed(123)
+times = []
+for i in range(1000, 5001, 1000):
+    start = time.time()
+    s = simulate(
+      agents=[
+          Escaper(node=node) 
+          for node 
+          in random.choices(list(G.nodes), k=i)
+      ],
+      G=G,
+      timelimit=TL,
+    )
+    end = time.time()
+    times.append(end - start)
+print(times)
+`,
+  `# test 2
+import networkx as nx
+import random
+import time
+
+G = await geocode_graph("香川県,高松市,林町")
+GOAL = await geocode_node(G, "香川大学,林町")
+SPEED = 1.0
+N = 1000
+TL = 6000
+
+times = []
+
+class Escaper(Agent):
+    route = []
+
+    def on_moved(self):
+        if not self.route:
+            times.append(self.env.time)
+            return
+        next_node = self.route.pop(0)
+        self.move(next_node, SPEED)
+
+    def on_started(self):
+        try:
+            self.route = nx.shortest_path(G, self.node, GOAL)
+        except:
+            return
+        self.route.pop(0)
+        self.on_moved()
+
+random.seed(123)
+s = simulate(
+  agents=[
+      Escaper(node=node) 
+      for node 
+      in random.choices(list(G.nodes), k=N)
+  ],
+  G=G,
+  timelimit=TL,
+)
+print(times)
 `,
 ];
 
