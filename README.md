@@ -2,6 +2,8 @@
 
 防災用 ABM Web アプリ。
 
+https://s-uei.github.io/bsimx
+
 ## インストール
 
 ```sh
