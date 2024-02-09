@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "dev": "esbuild ui/bundle.tsx --outfile=public/dist/bundle.js --bundle --watch --servedir=public",
-    "build": "esbuild ui/bundle.tsx --outfile=public/dist/bundle.js --bundle"
+    "dev": "esbuild ui/bundle.tsx --outfile=public/dist/bundle.js --bundle --define:process.env.BASE_PATH=\\\"$BASE_PATH\\\" --watch --servedir=public",
+    "build": "esbuild ui/bundle.tsx --outfile=public/dist/bundle.js --bundle --define:process.env.BASE_PATH=\\\"$BASE_PATH\\\""
   },
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",

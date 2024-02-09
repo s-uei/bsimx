@@ -25,6 +25,8 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: npm ci
       - run: npm run build
+        env:
+          BASE_PATH: /bsimx
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./public

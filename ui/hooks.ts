@@ -33,7 +33,9 @@ export function usePyodide() {
       pyodide.FS.mkdir(mountDir);
       pyodide.FS.mount(pyodide.FS.filesystems.IDBFS, { root: "." }, mountDir);
       await pyodide.loadPackage("networkx");
-      pyodide.runPython(await (await fetch("/bsimx.py")).text());
+      pyodide.runPython(
+        await (await fetch((process.env.BASE_PATH ?? "") + "/bsimx.py")).text()
+      );
       setPyodide(pyodide);
       setLoading(false);
     })();
