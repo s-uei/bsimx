@@ -1,41 +1,60 @@
 import { Simulation } from "./types";
 
 export const pythonCodes = [
-  `#example01
+  `# 香川大学林町キャンパスへの最短経路避難
 import networkx as nx
 import random
 
+# 林町周辺のグラフを取得
 G = await geocode_graph("香川県,高松市,林町")
+# 香川大学林町キャンパス付近のノードIDを取得
 GOAL = await geocode_node(G, "香川大学,林町")
-SPEED = 40 * 1000 / 3600 # 40 km/h
+# 歩行者の速度
+SPEED = 1.0
+# エージェント数
+N = 1000
+# シミュレーション時間制限
+TL = 6000
 
+# 避難者の行動定義
 class Escaper(Agent):
-    route = []
+    route = [] # 避難経路
+    speed: float # 歩行速度
+    goal: int # 目的地
 
+    # ノード移動後の処理
     def on_moved(self):
+        # ゴールに到着した
         if not self.route:
             return
+        # 経路上の次のノードへ移動
         next_node = self.route.pop(0)
-        self.move(next_node, SPEED)
+        self.move(next_node, self.speed)
 
+    # シミュレーション開始時処理
     def on_started(self):
-        # 最短経路
         try:
-            self.route = nx.shortest_path(G, self.node, GOAL)
+            # 最短経路(ノードIDリスト)
+            self.route = nx.shortest_path(G, self.node, self.goal)
         except:
             return
+        # 最初のノードは現在地なので廃棄
         self.route.pop(0)
         self.on_moved()
 
+# エージェントを町中にランダムに発生
 random.seed(123)
+agents=[
+  Escaper(node=node, goal=GOAL, speed=SPEED)
+  for node
+  in random.choices(list(G.nodes), k=N)
+]
+
+# シミュレーション
 simulate(
-  agents=[
-      Escaper(node=node) 
-      for node 
-      in random.sample(list(G.nodes), 10)
-  ],
+  agents=agents,
   G=G,
-  timelimit=100,
+  timelimit=TL,
 )
 `,
   `# wealth transfer
