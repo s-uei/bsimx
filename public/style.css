@@ -61,3 +61,13 @@ button {
   top: 0.2rem;
   right: 0.2rem;
 }
+
+.bottom-left {
+  z-index: 1000;
+  padding: 0 0.2rem;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background-color: white;
+  font-size: small;
+}

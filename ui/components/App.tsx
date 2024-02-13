@@ -163,6 +163,11 @@ export default function App() {
             <span className="material-symbols-outlined">waves</span>
           </button>
         </div>
+        <div className="bottom-left">
+          <a href="https://disaportal.gsi.go.jp/hazardmap/copyright/opendata.html">
+            ハザードマップ出典：ハザードマップポータルサイト
+          </a>
+        </div>
       </div>
     </div>
   );
