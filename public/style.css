@@ -71,3 +71,12 @@ button {
   background-color: white;
   font-size: small;
 }
+
+.picked {
+  z-index: 1000;
+  position: absolute;
+  background-color: white;
+  border-radius: 0.2rem;
+  text-align: left;
+  padding: 0 0.2rem;
+}
