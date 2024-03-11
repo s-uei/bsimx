@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useReducer } from "react";
+import { PickingInfo } from "@deck.gl/core/typed";
 import { DeckGL } from "@deck.gl/react/typed";
 import { StaticMap } from "react-map-gl";
 import { BASEMAP } from "@deck.gl/carto/typed";
@@ -25,6 +26,10 @@ function getView(s: Simulation) {
   return v;
 }
 
+async function copyClipboard(text: string) {
+  await navigator.clipboard.writeText(text);
+}
+
 export default function App() {
   const { pyodide, loading } = usePyodide();
   const today = useMemo(() => new Date(), []);
@@ -33,6 +38,7 @@ export default function App() {
   const [view, setView] = useState(getView(emptySimulation));
   const [progress, setProgress] = useState(0);
   const [visibleWaveTiles, toggleWaveTiles] = useReducer((b) => !b, false);
+  const [picked, pick] = useState<PickingInfo | undefined>(undefined);
 
   const nodes = simulation.node_link_data.nodes;
   const agents = simulation.agents.map((a) => ({
@@ -121,6 +127,9 @@ export default function App() {
               data: nodes,
               getPosition: (d: (typeof nodes)[number]) => [d.lon, d.lat],
               opacity: 0.1,
+              pickable: true,
+              onClick: (e) => pick(e),
+              getRadius: () => 4,
             }),
             new LineLayer({
               id: "edge-layer",
@@ -155,6 +164,31 @@ export default function App() {
         >
           <StaticMap mapStyle={BASEMAP.VOYAGER} />
         </DeckGL>
+        {picked?.object && (
+          <div className="picked" style={{ top: picked.y, left: picked.x }}>
+            <button onClick={() => pick(undefined)}>
+              <span className="material-symbols-outlined">close</span>
+            </button>
+            <p>id: {picked.object.id}</p>
+            <button
+              onClick={() => {
+                copyClipboard(picked.object.id);
+                pick(undefined);
+              }}
+            >
+              <span className="material-symbols-outlined">content_copy</span>
+            </button>
+            <p>(lat, lon): {`(${picked.object.lat}, ${picked.object.lon})`}</p>
+            <button
+              onClick={() => {
+                copyClipboard(`(${picked.object.lat}, ${picked.object.lon})`);
+                pick(undefined);
+              }}
+            >
+              <span className="material-symbols-outlined">content_copy</span>
+            </button>
+          </div>
+        )}
         <div className="clock">
           <time>{Math.floor((date.getTime() - today.getTime()) / 1000)}</time>
         </div>
